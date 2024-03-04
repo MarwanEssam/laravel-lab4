@@ -20,15 +20,16 @@
           <th scope="row">{{$post->id}}</th>
           <td>{{$post->title}}</td>
           <td>{{$post->content}}</td>
-          <td>{{App\Models\User::find($post->user_id)->name}}</td>
+          <td>{{$post->user->name}}</td>
           <td>
             <a class="btn btn-primary" href="{{route('posts.edit',$post->id)}}">Update</a>
           </td>
           <td>
-            {!! Form::open(['route' => ['posts.destroy', $post->id], 'method' => 'DELETE']) !!}
+            <form action="{{route('posts.destroy',[$post->id])}}" method="POST">
               @csrf
+              @method('DELETE')
               <button type="submit" class="btn btn-danger">Delete</button>
-            {!! Form::close() !!}
+            </form>
           </td>
         </tr>
         @endforeach

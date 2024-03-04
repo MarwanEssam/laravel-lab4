@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PostRequest;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,46 +14,44 @@ class PostController extends Controller
         return view('posts/create');
     }
 
-    public function store(Request $request)
+    public function store(PostRequest $request)
     {
+        // $request->validate(['title' => 'required|min:3', 'content' => 'required|min:3']);
         $post = new Post();
         $post->title = $request->title;
         $post->content = $request->content;
         $post->user_id = $request->user()->id;
         $post->save();
-        return redirect('/posts/create');
+        return redirect('/posts/create')->with('success', 'Post created successfully');
     }
 
     public function index()
     {
-        $all_posts = Post::all();
-        return view('posts.index', ['posts' => $all_posts]);
+        return view('posts.index', ['posts' => Auth::user()->posts]);
     }
 
 
-    public function edit($id)
+    public function edit(Post $id)
     {
         return view('posts.edit', [
-            'post' => Post::find($id)
+            'post' => $id
         ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Post $id)
     {
-        $post = Post::find($id);
-        $post->title = $request->title;
-        $post->content = $request->content;
-        if ($post->save()) {
+        $id->title = $request->title;
+        $id->content = $request->content;
+        if ($id->save()) {
             return redirect()->route('posts.index');
         }
     }
-    public function destroy($id)
+    public function destroy(Post $id)
     {
-        $post = Post::find($id);
-        if (!$post) {
+        if (!$id) {
             return redirect()->route('posts.index')->with('error', 'Post not found');
         }
-        $post->delete();
+        $id->delete();
         return redirect()->route('posts.index');
     }
 }
